@@ -6,6 +6,9 @@ node_modules/
 dist/
 src-tauri/target/
 
+# Bundled Node.js (too large for git, downloaded at build time)
+src-tauri/resources/node/
+
 # IDE
 .vscode/
 .idea/
@@ -24,8 +27,3 @@ npm-debug.log*
 .env
 .env.local
 .env.*.local
-
-# Tauri
-src-tauri/target/
-src-tauri/WixTools/
-src-tauri/Cargo.lock

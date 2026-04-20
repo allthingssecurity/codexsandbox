@@ -15,6 +15,7 @@ fn main() {
             pty::write_pty,
             pty::resize_pty,
             pty::close_pty,
+            pty::get_node_info,
             config::get_config,
             config::save_config,
             config::get_home_dir,

@@ -8,7 +8,7 @@
 
 Open Terminal and run:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/allthingssecurity/codexsandbox/main/setup-codex.sh | bash
+curl -fsSL https://raw.githubusercontent.com/allthingssecurity/codexsandbox/v1.1.2/setup-codex.sh | bash
 ```
 
 ### Windows

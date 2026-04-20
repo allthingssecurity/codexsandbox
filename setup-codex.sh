@@ -1,4 +1,5 @@
 #!/bin/bash
+# v1.1.2 - Fixed npm configuration
 # Codex Portable Setup for macOS/Linux
 # Downloads Node.js and Codex to a local folder - no admin needed!
 

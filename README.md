@@ -2,30 +2,30 @@
 
 A desktop terminal app for running OpenAI Codex CLI. **Zero setup for trainees** - Node.js is bundled, just install Codex and go.
 
-## Features
+## For Trainees (Download & Run)
 
-- **Bundled Node.js** - No need to install Node.js separately
-- Full PTY terminal with xterm.js
-- API key management via Settings
-- Cross-platform: macOS, Windows, Linux
+### Step 1: Download
 
-## For Trainees (End Users)
+Go to [Releases](https://github.com/allthingssecurity/codexsandbox/releases/latest) and download for your platform:
 
-### Download & Install
+| Platform | File |
+|----------|------|
+| macOS (Apple Silicon) | `CodexTrainer_x.x.x_aarch64.dmg` |
+| macOS (Intel) | `CodexTrainer_x.x.x_x64.dmg` |
+| Windows | `CodexTrainer_x.x.x_x64-setup.exe` |
+| Linux | `CodexTrainer_x.x.x_amd64.AppImage` |
 
-1. Go to [Releases](https://github.com/allthingssecurity/codexsandbox/releases)
-2. Download for your platform:
-   - **macOS (Apple Silicon)**: `CodexTrainer_x.x.x_aarch64.dmg`
-   - **macOS (Intel)**: `CodexTrainer_x.x.x_x64.dmg`
-   - **Windows**: `CodexTrainer_x.x.x_x64-setup.exe`
-   - **Linux**: `CodexTrainer_x.x.x_amd64.AppImage`
-3. Install and run
+### Step 2: Install
 
-### Quick Start
+- **macOS**: Open DMG, drag to Applications
+- **Windows**: Run the installer
+- **Linux**: Make AppImage executable and run
+
+### Step 3: Configure & Use
 
 1. **Launch** the app
-2. **Click Settings** (gear icon) → Add your OpenAI API key
-3. **Install Codex** (one-time, in the terminal):
+2. **Click Settings** (gear icon) → Enter your OpenAI API key
+3. **Install Codex** (one-time, type in the terminal):
    ```bash
    npm install -g @openai/codex
    ```
@@ -33,92 +33,133 @@ A desktop terminal app for running OpenAI Codex CLI. **Zero setup for trainees**
    ```bash
    codex "create a todo app with html and css"
    ```
-5. View generated files in your home directory
+
+That's it! Generated files appear in your home directory.
+
+---
 
 ## For Developers (Building from Source)
 
 ### Prerequisites
 
-- Node.js 18+ (for building, not bundled)
-- Rust 1.70+
-- Platform-specific Tauri dependencies:
-  - **macOS**: Xcode Command Line Tools
-  - **Windows**: Visual Studio Build Tools, WebView2
-  - **Linux**: `libwebkit2gtk-4.0-dev`, `libappindicator3-dev`
+- Git
+- Node.js 18+ (for building only, not bundled)
+- Rust 1.70+ ([install](https://rustup.rs/))
+- Platform build tools:
+  - **macOS**: Xcode Command Line Tools (`xcode-select --install`)
+  - **Windows**: [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) + [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
+  - **Linux**: `sudo apt install libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev`
 
-### Build Steps
+### Build Steps (All Platforms)
 
 ```bash
-# Clone the repo
+# 1. Clone the repo
 git clone https://github.com/allthingssecurity/codexsandbox.git
 cd codexsandbox
 
-# Install frontend dependencies
+# 2. Install dependencies
 npm install
 
-# Download Node.js for bundling (required before build)
+# 3. Download Node.js for bundling (REQUIRED)
+#    This downloads Node.js to bundle inside the app
+
+# macOS / Linux:
 ./scripts/download-node.sh
 
-# Build for production
-npm run tauri build
-```
-
-The built app will be in `src-tauri/target/release/bundle/`.
-
-### Cross-Platform Builds
-
-To build for a different platform, run the download script on that platform first:
-
-```bash
-# On Windows (PowerShell)
+# Windows (PowerShell):
 .\scripts\download-node.ps1
 
-# On Linux/macOS
-./scripts/download-node.sh
+# Windows (CMD, no PowerShell):
+scripts\download-node.bat
 
-# Then build
+# 4. Build the app
 npm run tauri build
 ```
 
-## Architecture
+### Build Output
+
+After build completes, find your installer in:
 
 ```
-codex-trainer/
-├── src/                          # React frontend
-│   ├── App.tsx                   # Main app component
-│   ├── Terminal.tsx              # xterm.js terminal
-│   └── Settings.tsx              # API key settings
-├── src-tauri/
-│   ├── src/
-│   │   ├── main.rs               # Tauri entry point
-│   │   ├── pty.rs                # PTY + bundled Node path handling
-│   │   └── config.rs             # Config management
-│   ├── resources/node/           # Bundled Node.js (downloaded at build time)
-│   └── tauri.conf.json
-├── scripts/
-│   └── download-node.sh          # Downloads Node.js for bundling
-└── package.json
+src-tauri/target/release/bundle/
+├── macos/          # macOS: CodexTrainer.app
+├── dmg/            # macOS: .dmg installer
+├── msi/            # Windows: .msi installer  
+├── nsis/           # Windows: .exe installer
+├── deb/            # Linux: .deb package
+└── appimage/       # Linux: .AppImage
 ```
+
+### Development Mode
+
+```bash
+# Run in dev mode (hot reload)
+npm run tauri dev
+```
+
+---
 
 ## How It Works
 
-1. **Bundled Node.js**: The app bundles a complete Node.js runtime in `resources/node/`
-2. **Isolated Environment**: The terminal uses the bundled Node, not any system Node/nvm
-3. **npm Global Prefix**: Global npm installs go to `~/Library/Application Support/codex-trainer/npm-global/` (isolated from system)
-4. **API Key Injection**: Your OpenAI key is injected as `OPENAI_API_KEY` env var
+### Architecture
+
+```
+codex-trainer/
+├── src/                          # React frontend (terminal UI)
+│   ├── App.tsx                   # Main app + settings
+│   ├── Terminal.tsx              # xterm.js terminal
+│   └── Settings.tsx              # API key config modal
+├── src-tauri/                    # Rust backend
+│   ├── src/
+│   │   ├── main.rs               # Tauri entry point
+│   │   ├── pty.rs                # PTY + Node.js path handling
+│   │   └── config.rs             # Config storage
+│   ├── resources/node/           # Bundled Node.js (downloaded at build)
+│   └── tauri.conf.json           # Tauri config
+├── scripts/
+│   ├── download-node.sh          # Download Node.js (macOS/Linux)
+│   ├── download-node.ps1         # Download Node.js (Windows PowerShell)
+│   └── download-node.bat         # Download Node.js (Windows CMD)
+└── package.json
+```
+
+### Key Features
+
+1. **Bundled Node.js**: App includes Node.js runtime (~100MB), no system install needed
+2. **Isolated Environment**: Uses bundled Node, ignores system Node/nvm
+3. **Isolated npm**: Global installs go to app-specific directory:
+   - macOS: `~/Library/Application Support/codex-trainer/npm-global/`
+   - Windows: `%LOCALAPPDATA%\codex-trainer\npm-global\`
+   - Linux: `~/.local/share/codex-trainer/npm-global/`
+4. **API Key Injection**: Your key is injected as `OPENAI_API_KEY` env var
+
+---
 
 ## Troubleshooting
 
 ### "npm: command not found"
-The bundled Node.js path isn't being detected. Try restarting the app.
+The bundled Node.js path isn't being detected. Restart the app.
 
-### nvm conflicts
-The app disables nvm to avoid conflicts. This is intentional - it uses its own bundled Node.
+### nvm warning about NPM_CONFIG_PREFIX
+This is expected - the app disables nvm to use its bundled Node. Ignore the warning.
 
-### Codex errors
-Make sure you've:
-1. Added your API key in Settings
-2. Installed Codex: `npm install -g @openai/codex`
+### Codex not working
+1. Check API key is set (Settings → should show key)
+2. Verify Codex installed: `codex --version`
+3. Check you have API credits at https://platform.openai.com/
+
+### Build fails on Windows
+Make sure you have:
+- Visual Studio Build Tools with "Desktop development with C++"
+- WebView2 Runtime installed
+
+### Build fails on Linux
+Install dependencies:
+```bash
+sudo apt install libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+```
+
+---
 
 ## License
 
